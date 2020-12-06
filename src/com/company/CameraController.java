@@ -6,6 +6,7 @@ import com.company.math.Vector4;
 import com.company.screen.ScreenConverter;
 import com.company.screen.ScreenPoint;
 import com.company.third.Camera;
+import com.company.third.ProjectionViewer;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -17,19 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.swing.SwingUtilities;
 
-/**
- *
- * @author Alexey
- */
 public class CameraController implements MouseListener, MouseMotionListener, MouseWheelListener {
-
-    /*=============== Начало паттерна "слушатель" ==================*/
-    /* Реализация паттерна слушатель для оповещения всех желающих о каком-либо событии */
-
-    /* Для начала требуется объявить интерфейс, в котором будут указаны используемы для оповещения методы.
-     * В данном случае будет объявлен один метод, который будет вызываться тогда,
-     * когда изменится состояние камеры и надо перерисовать экран
-     */
 
     /**
      * Интерфейс, объявляющий набор метод, которые обязан реализовать слушатель
@@ -41,10 +30,6 @@ public class CameraController implements MouseListener, MouseMotionListener, Mou
         void shouldRepaint();
     }
 
-
-    /* Далее описывается приватная коллекция, в данном случае - Set,
-     * где будет хрнаиться список всех слушателей, подписанных на данное событие.
-     */
     private Set<RepaintListener> listeners = new HashSet<>();
 
     /**
@@ -71,8 +56,6 @@ public class CameraController implements MouseListener, MouseMotionListener, Mou
             cl.shouldRepaint();
     }
 
-    /*=============== Конец паттерна "слушатель" ==================*/
-
     private Camera camera;
     private ScreenConverter sc;
 
@@ -81,26 +64,8 @@ public class CameraController implements MouseListener, MouseMotionListener, Mou
         this.sc = sc;
     }
 
-    public Camera getCamera() {
-        return camera;
-    }
-
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-    }
-
-    public ScreenConverter getSc() {
-        return sc;
-    }
-
-    public void setSc(ScreenConverter sc) {
-        this.sc = sc;
-    }
-
-
     @Override
     public void mouseClicked(MouseEvent e) {
-
     }
 
     /*Здесь запоминаем последнее положение мыши, для которого обрабатывали событие*/
@@ -194,16 +159,6 @@ public class CameraController implements MouseListener, MouseMotionListener, Mou
         onRepaint(); /*Оповещаем всех, что мы изменили камеру и её надо перерисовать*/
     }
 
-    public void setProjection(float p1, float p2) {
-        camera.initProjection();
-        camera.modifyProjection(Matrix4Factories.centralProjection(p1, p2));
-    }
-
-    public void setProjection(float p1, float p2, float p3) {
-        camera.initProjection();
-        camera.modifyProjection(Matrix4Factories.centralProjection(p1, p2, p3));
-    }
-
     @Override
     public void mouseMoved(MouseEvent e) {
     }
@@ -211,18 +166,19 @@ public class CameraController implements MouseListener, MouseMotionListener, Mou
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int delta = e.getWheelRotation();
-//        if (e.isControlDown()) {
-//            /*delta*5f - экспериментально подобранное число. Чем меньше, тем быстрее будет изменяться точка схода*/
-//            camera.modifyProjection(Matrix4Factories.centralProjection(delta * 5f, Matrix4Factories.Axis.Z));
-//        } else {
+        /*Если зажат Control, то будем менять параметры перспективы, иначе - масштаба*/
+        if (e.isControlDown()) {
+            /*delta*5f - экспериментально подобранное число. Чем меньше, тем быстрее будет изменяться точка схода*/
+            camera.modifyProjection(Matrix4Factories.centralProjection(delta*5f, Matrix4Factories.Axis.Z));
+        } else {
+            /*Вычислим коэффициент масштаба*/
             float factor = 1;
             float scale = delta < 0 ? 0.9f : 1.1f;
             int counter = delta < 0 ? -delta : delta;
             while (counter-- > 0)
                 factor *= scale;
             camera.modifyScale(Matrix4Factories.scale(factor));
-//        }
+        }
         onRepaint();
     }
-
 }

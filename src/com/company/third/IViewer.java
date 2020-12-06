@@ -7,7 +7,7 @@ import com.company.math.Vector3;
  * из мировой системы координат в систему координат камеры.
  * @author Alexey
  */
-public interface ICamera {
+public interface IViewer {
     /**
      * Преобразует точку из мировой системы координат в систему координат камеры
      * @param v преобразуемая точка

@@ -62,4 +62,15 @@ public class Vector3 {
         return (float)Math.sqrt(lenSqr);
     }
 
+    public void setX(float x) {
+        values[0] = x;
+    }
+
+    public void setY(float y) {
+        values[1] = y;
+    }
+
+    public void setZ(float z) {
+        values[2] = z;
+    }
 }

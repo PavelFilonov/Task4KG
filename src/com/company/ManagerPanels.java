@@ -4,6 +4,7 @@ import com.company.math.Vector3;
 import com.company.panels.CreatingModelPanel;
 import com.company.panels.DrawPanel;
 import com.company.panels.DataPanel;
+import com.company.third.CoordinateSystem;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -20,11 +21,9 @@ public class ManagerPanels implements DataPanel.Closeable, CreatingModelPanel.Cr
 
     private CreatingModelPanel cm;
 
-    private RealCoordinates rc;
+    private RealCoordinates[] rc = new RealCoordinates[2];
 
     private int width = 700, height = 700;
-
-    private boolean openDrawPanel = false, openDataPanel = true, openCreatingModelPanel = false;
 
     public ManagerPanels() {
         frame = new JFrame();
@@ -47,17 +46,16 @@ public class ManagerPanels implements DataPanel.Closeable, CreatingModelPanel.Cr
         });
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         drawPanel = new DrawPanel();
-        dataPanel = new DataPanel();
-        dataPanel.setCloseable(this);
+        dataPanel = new DataPanel(this);
         frame.add(dataPanel);
         frame.setVisible(true);
     }
 
     @Override
     public void shouldClose() {
-        rc = dataPanel.getRealCoordinates();
-//        drawPanel.setPointsProjection(rc.getX(), rc.getY());
-        drawPanel.setPointsProjection(rc.getX(), rc.getY(), rc.getZ());
+        rc[0] = dataPanel.getRealCoordinatesFirstVector();
+        rc[1] = dataPanel.getRealCoordinatesSecondVector();
+        drawPanel.setPointsProjection(rc);
         toDrawPanel();
     }
 
@@ -74,62 +72,32 @@ public class ManagerPanels implements DataPanel.Closeable, CreatingModelPanel.Cr
     }
 
     private void toDrawPanel() {
-        if (!openDrawPanel) {
-            frame.add(drawPanel);
-            openDrawPanel = true;
-        }
-
-        if (openDataPanel) {
-            frame.remove(dataPanel);
-            openDataPanel = false;
-        }
-
-        if (openCreatingModelPanel) {
-            frame.remove(cm);
-            openCreatingModelPanel = false;
-        }
+        removeAll();
+        frame.add(drawPanel);
 
         repaint();
     }
 
     private void toDataPanel() {
-        if (openDrawPanel) {
-            frame.remove(drawPanel);
-            openDrawPanel = false;
-        }
-
-        if (!openDataPanel) {
-            frame.add(dataPanel);
-            openDataPanel = true;
-        }
-
-        if (openCreatingModelPanel) {
-            frame.remove(cm);
-            openCreatingModelPanel = false;
-        }
+        removeAll();
+        frame.add(dataPanel);
 
         repaint();
     }
 
     private void toCreatingModelPanel() {
-        if (openDrawPanel) {
-            frame.remove(drawPanel);
-            openDrawPanel = false;
-        }
-
-        if (openDataPanel) {
-            frame.remove(dataPanel);
-            openDataPanel = false;
-        }
-
-        if (!openCreatingModelPanel) {
-            cm = new CreatingModelPanel();
-            cm.setCreating(this);
-            frame.add(cm);
-            openCreatingModelPanel = true;
-        }
+        removeAll();
+        cm = new CreatingModelPanel(this);
+        frame.add(cm);
 
         repaint();
+    }
+
+    private void removeAll() {
+        frame.remove(drawPanel);
+        frame.remove(dataPanel);
+        if (cm != null)
+            frame.remove(cm);
     }
 
     private void repaint() {

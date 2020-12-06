@@ -1,20 +1,23 @@
 package com.company.panels;
 
 import com.company.CameraController;
+import com.company.RealCoordinates;
+import com.company.ViewManager;
 import com.company.draw.IDrawer;
 import com.company.draw.SimpleEdgeDrawer;
+import com.company.math.Matrix4Factories;
 import com.company.math.Vector3;
+import com.company.math.Vector4;
 import com.company.models.CommonModel;
 import com.company.models.Parallelepiped;
 import com.company.screen.ScreenConverter;
-import com.company.third.Camera;
-import com.company.third.Scene;
+import com.company.screen.ScreenPoint;
+import com.company.third.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -23,14 +26,18 @@ public class DrawPanel extends JPanel
 
     private Scene scene;
     private ScreenConverter sc;
-    private Camera cam;
+    private Camera camera;
+    private ProjectionViewer pv;
     private CameraController camController;
+    private ViewManager manager;
 
     public DrawPanel() {
         super();
         sc = new ScreenConverter(-1, 1, 2, 2, 1, 1);
-        cam = new Camera();
-        camController = new CameraController(cam, sc);
+        camera = new Camera();
+        pv = new ProjectionViewer();
+        camController = new CameraController(camera, sc);
+        manager = new ViewManager(pv);
         scene = new Scene(Color.WHITE.getRGB());
         scene.showAxes();
 
@@ -49,23 +56,31 @@ public class DrawPanel extends JPanel
         scene.getModelsList().add(new CommonModel(list, closed));
     }
 
-    public void setPointsProjection(float x, float y) {
-        List<Vector3> list = new ArrayList<>();
-        list.add(new Vector3(x, 0, 0));
-        list.add(new Vector3(0, y, 0));
-        scene.getModelsList().add(new CommonModel(list, false));
-
-        camController.setProjection(x, y);
+    public void setPointsProjection(RealCoordinates[] rc) {
+//        List<Vector3> list = new ArrayList<>();
+//        list.add(new Vector3(rc[0].getX(), rc[0].getY(), rc[0].getZ()));
+//        list.add(new Vector3(rc[1].getX(), rc[1].getY(), rc[1].getZ()));
+//        scene.getModelsList().add(new CommonModel(list, false));
+//        Vector3 v = getVectorNewCoordinates(rc);
+//        scene.setX0(v.getX());
+//        scene.setY0(v.getY());
+//        scene.setZ0(v.getZ());
+        manager.setProjection(rc);
+        repaint();
     }
 
-    public void setPointsProjection(float x, float y, float z) {
-        List<Vector3> list = new ArrayList<>();
-        list.add(new Vector3(x, 0, 0));
-        list.add(new Vector3(0, y, 0));
-        list.add(new Vector3(0, 0, z));
-        scene.getModelsList().add(new CommonModel(list, true));
+    private Vector3 getVectorNewCoordinates(RealCoordinates[] rc) {
+        CoordinateSystem cs = new CoordinateSystem(
+                rc[1].getX(),
+                rc[0].getY(),
+                rc[0].getZ() + rc[1].getZ()
+        );
 
-        camController.setProjection(x, y, z);
+        return new Vector3(
+                cs.getX0(),
+                cs.getY0(),
+                cs.getZ0()
+        );
     }
 
     @Override
@@ -74,7 +89,7 @@ public class DrawPanel extends JPanel
         BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D)bi.getGraphics();
         IDrawer dr = new SimpleEdgeDrawer(sc, graphics);
-        scene.drawScene(dr, cam);
+        scene.drawScene(dr, camera, pv);
         g.drawImage(bi, 0, 0, null);
         graphics.dispose();
     }

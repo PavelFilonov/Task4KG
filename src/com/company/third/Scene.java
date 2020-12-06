@@ -10,10 +10,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Описывает трёхмерную со всеми объектами на ней
- * @author Alexey
- */
 public class Scene {
     private List<IModel> models = new ArrayList<>();
 
@@ -59,9 +55,10 @@ public class Scene {
     /**
      * Рисуем сцену со всеми моделями
      * @param drawer то, с помощью чего будем рисовать
-     * @param cam камера для преобразования координат
+     * @param camera камера для преобразования координат
+     * @param pViewer viewer проекции для преобразования координат
      */
-    public void drawScene(IDrawer drawer, ICamera cam) {
+    public void drawScene(IDrawer drawer, IViewer camera, IViewer pViewer) {
         List<PolyLine3D> lines = new LinkedList<>();
         LinkedList<Collection<? extends IModel>> allModels = new LinkedList<>();
         allModels.add(models);
@@ -75,7 +72,7 @@ public class Scene {
                     /*Все точки конвертируем с помощью камеры*/
                     List<Vector3> points = new LinkedList<>();
                     for (Vector3 v : pl.getPoints()) {
-                        points.add(cam.w2s(v));
+                        points.add(camera.w2s(pViewer.w2s(v)));
                     }
                     /*Создаём на их сонове новые полилинии, но в том виде, в котором их видит камера*/
                     lines.add(new PolyLine3D(points, pl.isClosed()));

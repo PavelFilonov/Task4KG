@@ -130,19 +130,10 @@ public final class Matrix4Factories {
         return centralProjection(point, axis == Axis.X ? 0 : axis == Axis.Y ? 1 : 2);
     }
 
-    public static Matrix4 centralProjection(float p1, float p2) {
+    public static Matrix4 centralProjection(float x, float y, float z) {
         Matrix4 m = one();
-//        m.setAt(2, 2, 0);
-        m.setAt(3, 0, 1 / p1);
-        m.setAt(3, 1, 1 / p2);
-        return m;
-    }
-
-    public static Matrix4 centralProjection(float p1, float p2, float p3) {
-        Matrix4 m = one();
-        m.setAt(3, 0, 1 / p1);
-        m.setAt(3, 1, 1 / p2);
-        m.setAt(3, 2, 1 / p3);
+        m.setAt(3, 0, 1 / x);
+        m.setAt(3, 1, 1 / y);
         return m;
     }
 }

@@ -21,7 +21,9 @@ public class CreatingModelPanel extends JPanel {
     private JButton removeVectorButton = new JButton("Удалить точку");
     private JButton createModelButton = new JButton("Создать модель");
 
-    public CreatingModelPanel() {
+    public CreatingModelPanel(CreatingModel creating) {
+        this.creating = creating;
+
         add(new JLabel("Координата X:"));
         add(xTF);
 
@@ -63,10 +65,6 @@ public class CreatingModelPanel extends JPanel {
     }
 
     private CreatingModel creating;
-
-    public void setCreating(CreatingModel creating) {
-        this.creating = creating;
-    }
 
     private Vector3 getVector() {
         float x;
