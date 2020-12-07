@@ -1,8 +1,7 @@
 package com.company.panels;
 
-import com.company.CameraController;
-import com.company.RealCoordinates;
 import com.company.ViewManager;
+import com.company.RealCoordinates;
 import com.company.draw.IDrawer;
 import com.company.draw.SimpleEdgeDrawer;
 import com.company.math.Matrix4Factories;
@@ -22,22 +21,24 @@ import java.util.List;
 import javax.swing.JPanel;
 
 public class DrawPanel extends JPanel
-        implements CameraController.RepaintListener {
+        implements ViewManager.RepaintListener {
 
     private Scene scene;
     private ScreenConverter sc;
     private Camera camera;
     private ProjectionViewer pv;
-    private CameraController camController;
-    private ViewManager manager;
+    private TranslateViewer tv;
+    private RotateViewer rv;
+    private ViewManager viewController;
 
     public DrawPanel() {
         super();
         sc = new ScreenConverter(-1, 1, 2, 2, 1, 1);
         camera = new Camera();
         pv = new ProjectionViewer();
-        camController = new CameraController(camera, sc);
-        manager = new ViewManager(pv);
+        tv = new TranslateViewer();
+        rv = new RotateViewer();
+        viewController = new ViewManager(camera, sc, pv);
         scene = new Scene(Color.WHITE.getRGB());
         scene.showAxes();
 
@@ -46,10 +47,10 @@ public class DrawPanel extends JPanel
                 new Vector3(0.4f, 0.4f, 0.4f)
         ));
 
-        camController.addRepaintListener(this);
-        addMouseListener(camController);
-        addMouseMotionListener(camController);
-        addMouseWheelListener(camController);
+        viewController.addRepaintListener(this);
+        addMouseListener(viewController);
+        addMouseMotionListener(viewController);
+        addMouseWheelListener(viewController);
     }
 
     public void addModel(List<Vector3> list, boolean closed) {
@@ -57,15 +58,21 @@ public class DrawPanel extends JPanel
     }
 
     public void setPointsProjection(RealCoordinates[] rc) {
-//        List<Vector3> list = new ArrayList<>();
-//        list.add(new Vector3(rc[0].getX(), rc[0].getY(), rc[0].getZ()));
-//        list.add(new Vector3(rc[1].getX(), rc[1].getY(), rc[1].getZ()));
-//        scene.getModelsList().add(new CommonModel(list, false));
-//        Vector3 v = getVectorNewCoordinates(rc);
-//        scene.setX0(v.getX());
-//        scene.setY0(v.getY());
-//        scene.setZ0(v.getZ());
-        manager.setProjection(rc);
+        viewController.setProjection(rc);
+
+//        double dx = rc[1].getX() * Math.PI / 180;
+//        double dy = rc[0].getY() * Math.PI / 180;
+//        double dz = (rc[0].getZ() + rc[1].getZ()) * Math.PI / 180;
+//        rv.modifyRotate(
+//                Matrix4Factories.rotationXYZ(dz, Matrix4Factories.Axis.Z)
+//                        .mul(Matrix4Factories.rotationXYZ(dy, Matrix4Factories.Axis.Z)
+//                                .mul(Matrix4Factories.rotationXYZ(dx, Matrix4Factories.Axis.Z)))
+//        );
+
+//        Vector4 zero = new Vector4(sc.s2r(new ScreenPoint(0, 0)), 0);
+//        Vector4 cur = new Vector4(rc[1].getX(), rc[0].getY(), rc[0].getZ() + rc[1].getZ());
+//        Vector3 delta = cur.add(zero.mul(-1)).asVector3();
+//        tv.modifyTranslate(Matrix4Factories.translation(delta));
         repaint();
     }
 
@@ -89,7 +96,7 @@ public class DrawPanel extends JPanel
         BufferedImage bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D)bi.getGraphics();
         IDrawer dr = new SimpleEdgeDrawer(sc, graphics);
-        scene.drawScene(dr, camera, pv);
+        scene.drawScene(dr, camera, pv, rv);
         g.drawImage(bi, 0, 0, null);
         graphics.dispose();
     }

@@ -58,13 +58,28 @@ public class Scene {
      * @param camera камера для преобразования координат
      * @param pViewer viewer проекции для преобразования координат
      */
-    public void drawScene(IDrawer drawer, IViewer camera, IViewer pViewer) {
+    public void drawScene(IDrawer drawer, IViewer camera, IViewer pViewer, IViewer rViewer) {
         List<PolyLine3D> lines = new LinkedList<>();
         LinkedList<Collection<? extends IModel>> allModels = new LinkedList<>();
         allModels.add(models);
+
         /*Если требуется, то добавляем оси координат*/
+        LinkedList<Collection<? extends IModel>> coordinates = new LinkedList<>();
         if (isShowAxes())
-            allModels.add(axes);
+            coordinates.add(axes);
+        for (Collection<? extends IModel> mc : coordinates)
+            for (IModel m : mc) {
+                for (PolyLine3D pl : m.getLines()) {
+                    /*Все точки конвертируем с помощью камеры*/
+                    List<Vector3> points = new LinkedList<>();
+                    for (Vector3 v : pl.getPoints()) {
+                        points.add(camera.w2s(v));
+                    }
+                    /*Создаём на их сонове новые полилинии, но в том виде, в котором их видит камера*/
+                    lines.add(new PolyLine3D(points, pl.isClosed()));
+                }
+            }
+
         /*перебираем все полилинии во всех моделях*/
         for (Collection<? extends IModel> mc : allModels)
             for (IModel m : mc) {

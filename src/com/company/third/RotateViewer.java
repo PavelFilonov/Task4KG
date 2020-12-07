@@ -4,10 +4,11 @@ import com.company.math.Matrix4;
 import com.company.math.Vector3;
 import com.company.math.Vector4;
 
-public class ProjectionViewer implements IViewer {
+public class RotateViewer implements IViewer {
+
     private Matrix4 translate, rotate, scale, projection;
 
-    public ProjectionViewer() {
+    public RotateViewer() {
         translate = Matrix4.one();
         rotate = Matrix4.one();
         scale = Matrix4.one();
@@ -34,46 +35,12 @@ public class ProjectionViewer implements IViewer {
         ).asVector3();
     }
 
-    public void modifyProjection(Matrix4 dp) {
-        this.projection = dp.mul(this.projection);
-    }
-
-    public void initProjection() {
-        this.projection = Matrix4.one();
-    }
-
-    public void initTranslate() {
-        this.translate = Matrix4.one();
-    }
 
     public void modifyRotate(Matrix4 dp) {
         this.rotate = dp.mul(this.rotate);
     }
 
     public void initRotate() {
-        this.rotate = Matrix4.one(); }
-
-    public void modifyTranslate(Matrix4 dp) {
-        this.translate = dp.mul(this.translate);
-    }
-
-    public Matrix4 getProjection() {
-        return projection;
-    }
-
-    public void setProjection(Matrix4 projection) {
-        this.projection = projection;
-    }
-
-    public Matrix4 getTranslate() {
-        return translate;
-    }
-
-    public Matrix4 getRotate() {
-        return rotate;
-    }
-
-    public Matrix4 getScale() {
-        return scale;
+        this.rotate = Matrix4.one();
     }
 }

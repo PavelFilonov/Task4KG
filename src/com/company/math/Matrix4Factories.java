@@ -116,6 +116,7 @@ public final class Matrix4Factories {
         Matrix4 m = one();
         if (axisIndex < 0 || axisIndex > 2)
             return m;
+
         m.setAt(3, axisIndex, 1 / point);
         return m;
     }

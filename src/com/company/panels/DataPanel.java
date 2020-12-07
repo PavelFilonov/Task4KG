@@ -23,11 +23,11 @@ public class DataPanel extends JPanel implements ActionListener {
         this.closeable = closeable;
 
         x1TF.setText("3");
-        y1TF.setText("3");
-        z1TF.setText("3");
-        x2TF.setText("1");
+        y1TF.setText("0");
+        z1TF.setText("0");
+        x2TF.setText("0");
         y2TF.setText("1");
-        z2TF.setText("1");
+        z2TF.setText("0");
 
         add(new JLabel("X1:"));
         add(x1TF);
